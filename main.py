@@ -24,6 +24,8 @@ class Customer(BaseModel):
     size: Annotated[str, Field(..., description="Size")]
     price: Annotated[float, Field(..., gt=0)]
     phone: Annotated[Optional[int], Field(None, description="Phone number")]
+    date: Optional[str] = Field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
 
 class CustomerUpdate(BaseModel):
     name: Optional[str] = None
