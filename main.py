@@ -2,7 +2,7 @@ from fastapi import FastAPI, Path, HTTPException, Query
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import Annotated, Optional
+from typing import Annotated, Optional, List
 import json
 
 app = FastAPI()
@@ -18,15 +18,15 @@ app.add_middleware(
 
 class Customer(BaseModel):
     id: Annotated[str, Field(..., description="ID of the customer")]
-    name: Annotated[str, Field(..., description="Name of the customer")]
-    clothe: Annotated[str, Field(..., description="Clothe")]
-    size: Annotated[str, Field(...)]
+    name: Annotated[Optional[str], Field(None, description="Name of the customer")]
+    clothe: Annotated[List[str], Field(..., description="List of clothes")]
+    size: Annotated[str, Field(..., description="Size")]
     price: Annotated[float, Field(..., gt=0)]
-    phone: Annotated[int, Field(...)]
+    phone: Annotated[Optional[int], Field(None, description="Phone number")]
 
 class CustomerUpdate(BaseModel):
     name: Optional[str] = None
-    clothe: Optional[str] = None
+    clothe: Optional[List[str]] = None
     size: Optional[str] = None
     price: Optional[float] = Field(None, gt=0)
     phone: Optional[int] = None
