@@ -979,15 +979,16 @@
         // Handle stock form submission
          async function handleStockSubmit(event) {
     event.preventDefault();
-    
+
     const isEditMode = document.getElementById('isStockEditMode').value === 'true';
     let stockId = document.getElementById('stockId').value;
 
-    // Auto-generate ID for new stock
-    if (!isEditMode || !stockId) {
+    // ✅ Create ID if new stock entry
+    if (!isEditMode || !stockId.trim()) {
         stockId = "stock_" + Date.now();
     }
 
+    // ✅ Prepare correct JSON payload
     const stockData = {
         id: stockId,
         item: document.getElementById('stockItem').value,
@@ -1002,24 +1003,28 @@
 
         const response = await fetch(url, {
             method: isEditMode ? 'PUT' : 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(stockData)
         });
 
         const result = await response.json();
 
         if (response.ok) {
-            showMessage(isEditMode ? 'Stock updated successfully!' : 'Stock entry created successfully!', 'success');
+            showMessage(
+                isEditMode ? "Stock updated successfully!" : "Stock entry created successfully!",
+                "success"
+            );
             closeStockModal();
             loadStock();
         } else {
-            showMessage('Error: ' + result.detail, 'error');
+            showMessage("Error: " + result.detail, "error");
         }
 
     } catch (error) {
-        showMessage('Error: ' + error.message, 'error');
+        showMessage("Error: " + error.message, "error");
     }
 }
+
 
         // Delete stock entry
         async function deleteStock(stockId) {
