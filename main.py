@@ -11,7 +11,11 @@ app = FastAPI()
 # Add CORS middleware to allow frontend to communicate with backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with your frontend domain
+    allow_origins=[
+        "https://outfithuv-frontend.onrender.com",
+        "http://localhost:5500",
+        "*"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
