@@ -24,8 +24,7 @@ class Customer(BaseModel):
     size: Annotated[str, Field(..., description="Size")]
     price: Annotated[float, Field(..., gt=0)]
     phone: Annotated[Optional[int], Field(None, description="Phone number")]
-    date: Optional[str] = Field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-
+    date: Annotated[Optional[str], Field(None, description="Date created")]
 
 class CustomerUpdate(BaseModel):
     name: Optional[str] = None
@@ -33,6 +32,17 @@ class CustomerUpdate(BaseModel):
     size: Optional[str] = None
     price: Optional[float] = Field(None, gt=0)
     phone: Optional[int] = None
+
+class Stock(BaseModel):
+    item: Annotated[str, Field(..., description="Item name")]
+    quantity: Annotated[int, Field(..., gt=0, description="Quantity purchased")]
+    price: Annotated[float, Field(..., gt=0, description="Total price")]
+    date: Annotated[Optional[str], Field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))]
+
+class StockUpdate(BaseModel):
+    item: Optional[str] = None
+    quantity: Optional[int] = Field(None, gt=0)
+    price: Optional[float] = Field(None, gt=0)
 
 # Helper function to open and load the JSON file
 def load_data():
@@ -47,6 +57,19 @@ def load_data():
 
 def save_data(data):
     with open('customers.json', 'w') as f:
+        json.dump(data, f, indent=4)
+
+def load_stock_data():
+    try:
+        with open('stock.json', 'r') as f:
+            data = json.load(f)
+        return data
+    except FileNotFoundError:
+        save_stock_data({})
+        return {}
+
+def save_stock_data(data):
+    with open('stock.json', 'w') as f:
         json.dump(data, f, indent=4)
 
 # Home route
@@ -101,8 +124,10 @@ def create_customer(customer: Customer):
     if customer.id in data:
         raise HTTPException(status_code=400, detail='Customer already exists')
     
-    # Add new customer to the database
-    data[customer.id] = customer.model_dump(exclude=['id'])
+    # Add new customer to the database with current date
+    customer_data = customer.model_dump(exclude=['id'])
+    customer_data['date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    data[customer.id] = customer_data
     
     # Save into the json file
     save_data(data)
@@ -144,3 +169,67 @@ def delete_customer(customer_id: str = Path(..., description="ID of the customer
     save_data(data)
     
     return JSONResponse(status_code=200, content={'message': 'Customer deleted successfully'})
+
+# ============= STOCK MANAGEMENT ENDPOINTS =============
+
+# View all stock
+@app.get('/stock/view')
+def view_stock():
+    data = load_stock_data()
+    return data
+
+# View single stock entry
+@app.get('/stock/{stock_id}')
+def view_stock_entry(stock_id: str = Path(..., description='ID of the stock entry')):
+    data = load_stock_data()
+    if stock_id in data:
+        return data[stock_id]
+    raise HTTPException(status_code=404, detail="Stock entry not found")
+
+# Create stock entry
+@app.post("/stock/create")
+def create_stock(stock: Stock):
+    data = load_stock_data()
+    
+    if stock.id in data:
+        raise HTTPException(status_code=400, detail='Stock entry already exists')
+    
+    data[stock.id] = stock.model_dump(exclude=['id'])
+    save_stock_data(data)
+    
+    return JSONResponse(status_code=201, content={'message': 'Stock entry created successfully!'})
+
+# Update stock entry
+@app.put('/stock/edit/{stock_id}')
+def update_stock(
+    stock_id: str = Path(..., description="ID of the stock entry to update"),
+    stock_update: StockUpdate = None
+):
+    data = load_stock_data()
+    
+    if stock_id not in data:
+        raise HTTPException(status_code=404, detail="Stock entry not found")
+    
+    existing_stock = data[stock_id]
+    updated_stock = stock_update.model_dump(exclude_unset=True)
+    
+    for key, value in updated_stock.items():
+        existing_stock[key] = value
+    
+    data[stock_id] = existing_stock
+    save_stock_data(data)
+    
+    return JSONResponse(status_code=200, content={'message': 'Stock entry updated successfully'})
+
+# Delete stock entry
+@app.delete('/stock/delete/{stock_id}')
+def delete_stock(stock_id: str = Path(..., description="ID of the stock entry to delete")):
+    data = load_stock_data()
+    
+    if stock_id not in data:
+        raise HTTPException(status_code=404, detail='Stock entry not found')
+    
+    del data[stock_id]
+    save_stock_data(data)
+    
+    return JSONResponse(status_code=200, content={'message': 'Stock entry deleted successfully'})

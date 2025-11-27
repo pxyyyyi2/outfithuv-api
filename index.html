@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OutfitHuv - Customer Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 0;
+            background: #e2e8f0;
+            border-radius: 6px;
+            padding: 4px;
+            margin-bottom: 15px;
+        }
+
+        .view-toggle button {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .view-toggle button.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #dd6b20;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        select, input {
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #2d3748;
+        }
+
+        .close {
+            font-size: 28px;
+            cursor: pointer;
+            color: #a0aec0;
+        }
+
+        .close:hover {
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+        }
+
+        .optional {
+            color: #a0aec0;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        .clothes-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .clothes-selector select {
+            flex: 1;
+        }
+
+        .clothes-selector button {
+            padding: 10px 16px;
+        }
+
+        .selected-clothes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .clothe-tag {
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .clothe-tag .remove {
+            cursor: pointer;
+            font-weight: bold;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .clothe-tag .remove:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .customers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .customer-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .customer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .customer-header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .customer-id {
+            font-size: 12px;
+            color: #a0aec0;
+            text-transform: uppercase;
+        }
+
+        .customer-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-top: 5px;
+        }
+
+        .customer-info {
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #718096;
+            font-weight: 600;
+        }
+
+        .info-value {
+            color: #2d3748;
+            text-align: right;
+        }
+
+        .clothes-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: flex-end;
+        }
+
+        .clothes-list span {
+            background: #edf2f7;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #48bb78;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .card-actions button {
+            flex: 1;
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            padding: 40px;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👔 OutfitHuv</h1>
+            <p>Customer Management System</p>
+        </header>
+
+        <div class="controls">
+            <div class="view-toggle">
+                <button id="customersViewBtn" class="active" onclick="switchView('customers')">👥 Customers</button>
+                <button id="stockViewBtn" onclick="switchView('stock')">📦 Stock</button>
+            </div>
+            
+            <div id="customersControls">
+                <div class="button-group">
+                    <button class="btn-primary" onclick="loadCustomers()">🔄 Refresh</button>
+                    <button class="btn-success" onclick="openCreateModal()">➕ Add Customer</button>
+                </div>
+                
+                <div class="sort-controls">
+                    <label>Sort by Price:</label>
+                    <select id="sortOrder" onchange="sortCustomers()">
+                        <option value="asc">Low to High</option>
+                        <option value="desc">High to Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="stockControls" style="display: none;">
+                <div class="button-group">
+                    <button class="btn-primary" onclick="loadStock()">🔄 Refresh</button>
+                    <button class="btn-success" onclick="openStockModal()">➕ Add Stock</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="message"></div>
+        <div id="customersContainer" class="customers-grid"></div>
+        <div id="stockContainer" class="customers-grid" style="display: none;"></div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div id="customerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Customer</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="customerForm" onsubmit="handleSubmit(event)">
+                <input type="hidden" id="isEditMode" value="false">
+                <div class="form-group">
+                    <label>Customer ID *</label>
+                    <input type="text" id="customerId" required placeholder="e.g., c001">
+                </div>
+                <div class="form-group">
+                    <label>Name <span class="optional">(optional)</span></label>
+                    <input type="text" id="customerName" placeholder="Customer name">
+                </div>
+                <div class="form-group">
+                    <label>Clothes *</label>
+                    <div class="clothes-selector">
+                        <select id="clotheDropdown">
+                            <option value="">Select from dropdown...</option>
+                            <option value="Shirt">Shirt</option>
+                            <option value="T-Shirt">T-Shirt</option>
+                            <option value="Trouser">Trouser</option>
+                            <option value="Jeans">Jeans</option>
+                            <option value="Hoodie">Hoodie</option>
+                            <option value="Jacket">Jacket</option>
+                            <option value="Sweater">Sweater</option>
+                            <option value="Shorts">Shorts</option>
+                            <option value="Dress">Dress</option>
+                            <option value="Suit">Suit</option>
+                        </select>
+                        <button type="button" class="btn-primary btn-small" onclick="addClotheFromDropdown()">Add</button>
+                    </div>
+                    <div class="clothes-selector">
+                        <input type="text" id="customClothe" placeholder="Or type custom item here" onkeypress="handleClotheKeyPress(event)" style="flex: 1;">
+                        <button type="button" class="btn-primary btn-small" onclick="addCustomClothe()">Add</button>
+                    </div>
+                    <div id="selectedClothes" class="selected-clothes"></div>
+                </div>
+                <div class="form-group">
+                    <label>Size *</label>
+                    <select id="customerSize" required>
+                        <option value="">Select size...</option>
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                        <option value="XXXL">XXXL</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Price *</label>
+                    <input type="number" id="customerPrice" step="0.01" min="0.01" required placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Phone <span class="optional">(optional)</span></label>
+                    <input type="tel" id="customerPhone" placeholder="Phone number">
+                </div>
+                <button type="submit" class="btn-success" style="width: 100%;">Save Customer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stock Modal -->
+    <div id="stockModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="stockModalTitle">Add Stock Purchase</h2>
+                <span class="close" onclick="closeStockModal()">&times;</span>
+            </div>
+            <form id="stockForm" onsubmit="handleStockSubmit(event)">
+                <input type="hidden" id="isStockEditMode" value="false">
+                <input type="hidden" id="stockId" value="">
+                <div class="form-group">
+                    <label>Item *</label>
+                    <div class="clothes-selector">
+                        <select id="stockItemDropdown">
+                            <option value="">Select from dropdown...</option>
+                            <option value="Shirt">Shirt</option>
+                            <option value="T-Shirt">T-Shirt</option>
+                            <option value="Trouser">Trouser</option>
+                            <option value="Jeans">Jeans</option>
+                            <option value="Hoodie">Hoodie</option>
+                            <option value="Jacket">Jacket</option>
+                            <option value="Sweater">Sweater</option>
+                            <option value="Shorts">Shorts</option>
+                            <option value="Dress">Dress</option>
+                            <option value="Suit">Suit</option>
+                        </select>
+                        <button type="button" class="btn-primary btn-small" onclick="selectStockItem()">Select</button>
+                    </div>
+                    <div class="clothes-selector">
+                        <input type="text" id="stockItem" required placeholder="Or type item name here" style="flex: 1;">
+                        <button type="button" class="btn-primary btn-small" onclick="confirmStockItem()">✓</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Quantity *</label>
+                    <input type="number" id="stockQuantity" min="1" required placeholder="e.g., 50">
+                </div>
+                <div class="form-group">
+                    <label>Total Price *</label>
+                    <input type="number" id="stockPrice" step="0.01" min="0.01" required placeholder="0.00">
+                </div>
+                <button type="submit" class="btn-success" style="width: 100%;">Save Stock</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+       const API_URL = 'https://outfithuv-api-2.onrender.com';
+        let selectedClothes = [];
+        let currentView = 'customers';
+
+        // Switch between customers and stock view
+        function switchView(view) {
+            currentView = view;
+            
+            if (view === 'customers') {
+                document.getElementById('customersViewBtn').classList.add('active');
+                document.getElementById('stockViewBtn').classList.remove('active');
+                document.getElementById('customersControls').style.display = 'block';
+                document.getElementById('stockControls').style.display = 'none';
+                document.getElementById('customersContainer').style.display = 'grid';
+                document.getElementById('stockContainer').style.display = 'none';
+                loadCustomers();
+            } else {
+                document.getElementById('stockViewBtn').classList.add('active');
+                document.getElementById('customersViewBtn').classList.remove('active');
+                document.getElementById('stockControls').style.display = 'block';
+                document.getElementById('customersControls').style.display = 'none';
+                document.getElementById('stockContainer').style.display = 'grid';
+                document.getElementById('customersContainer').style.display = 'none';
+                loadStock();
+            }
+        }
+
+        // Calculate total price for stock
+        function calculateTotal() {
+            const quantity = parseFloat(document.getElementById('stockQuantity').value) || 0;
+            const pricePerItem = parseFloat(document.getElementById('stockPricePerItem').value) || 0;
+            const total = quantity * pricePerItem;
+            document.getElementById('stockTotalPrice').value = total.toFixed(2);
+        }
+
+        // Select item from dropdown for stock
+        function selectStockItem() {
+            const dropdown = document.getElementById('stockItemDropdown');
+            const input = document.getElementById('stockItem');
+            if (dropdown.value) {
+                input.value = dropdown.value;
+                dropdown.value = '';
+            }
+        }
+
+        // Confirm stock item (just for visual feedback on mobile)
+        function confirmStockItem() {
+            const input = document.getElementById('stockItem');
+            if (input.value.trim()) {
+                // Visual feedback - briefly highlight the field
+                input.style.borderColor = '#48bb78';
+                setTimeout(() => {
+                    input.style.borderColor = '#e2e8f0';
+                }, 500);
+            }
+        }
+
+        // Add clothe from dropdown
+        function addClotheFromDropdown() {
+            const dropdown = document.getElementById('clotheDropdown');
+            const value = dropdown.value.trim();
+            
+            if (value && !selectedClothes.includes(value)) {
+                selectedClothes.push(value);
+                updateClothesDisplay();
+                dropdown.value = '';
+            }
+        }
+
+        // Add custom clothe manually
+        function addCustomClothe() {
+            const input = document.getElementById('customClothe');
+            const value = input.value.trim();
+            
+            if (value && !selectedClothes.includes(value)) {
+                selectedClothes.push(value);
+                updateClothesDisplay();
+                input.value = '';
+            }
+        }
+
+        // Handle Enter key press in custom clothe input
+        function handleClotheKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addCustomClothe();
+            }
+        }
+
+        // Remove clothe from selection
+        function removeClothe(clothe) {
+            selectedClothes = selectedClothes.filter(c => c !== clothe);
+            updateClothesDisplay();
+        }
+
+        // Update clothes display
+        function updateClothesDisplay() {
+            const container = document.getElementById('selectedClothes');
+            container.innerHTML = '';
+            
+            selectedClothes.forEach(clothe => {
+                const tag = document.createElement('div');
+                tag.className = 'clothe-tag';
+                tag.innerHTML = `
+                    ${clothe}
+                    <span class="remove" onclick="removeClothe('${clothe}')">×</span>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        // Load all customers
+        async function loadCustomers() {
+            try {
+                showMessage('Loading customers...', 'loading');
+                const response = await fetch(`${API_URL}/view`);
+                const data = await response.json();
+                
+                displayCustomers(data);
+                clearMessage();
+            } catch (error) {
+                showMessage('Error loading customers: ' + error.message, 'error');
+            }
+        }
+
+        // Display customers in grid
+        function displayCustomers(data) {
+            const container = document.getElementById('customersContainer');
+            
+            if (Object.keys(data).length === 0) {
+                container.innerHTML = '<div class="loading">No customers found. Add your first customer!</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            
+            for (const [id, customer] of Object.entries(data)) {
+                const clothesList = Array.isArray(customer.clothe) 
+                    ? customer.clothe.map(c => `<span>${c}</span>`).join('')
+                    : `<span>${customer.clothe}</span>`;
+                
+                const card = document.createElement('div');
+                card.className = 'customer-card';
+                card.innerHTML = `
+                    <div class="customer-header">
+                        <div class="customer-id">${id}</div>
+                        <div class="customer-name">${customer.name || 'N/A'}</div>
+                    </div>
+                    <div class="customer-info">
+                        <div class="info-row">
+                            <span class="info-label">Clothes:</span>
+                            <span class="info-value clothes-list">${clothesList}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Size:</span>
+                            <span class="info-value">${customer.size}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Phone:</span>
+                            <span class="info-value">${customer.phone || 'N/A'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date:</span>
+                            <span class="info-value">${customer.date || 'N/A'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Price:</span>
+                            <span class="price">₹${customer.price.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-warning" onclick='openEditModal(${JSON.stringify({id, ...customer})})'>✏️ Edit</button>
+                        <button class="btn-danger" onclick="deleteCustomer('${id}')">🗑️ Delete</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        // Sort customers by price
+        async function sortCustomers() {
+            try {
+                const order = document.getElementById('sortOrder').value;
+                const response = await fetch(`${API_URL}/sort?sort_by=price&order=${order}`);
+                const data = await response.json();
+                
+                const dataObj = {};
+                data.forEach((customer, index) => {
+                    dataObj[`customer_${index}`] = customer;
+                });
+                
+                displayCustomers(dataObj);
+            } catch (error) {
+                showMessage('Error sorting customers: ' + error.message, 'error');
+            }
+        }
+
+        // Open create modal
+        function openCreateModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Customer';
+            document.getElementById('customerForm').reset();
+            document.getElementById('customerId').disabled = false;
+            document.getElementById('isEditMode').value = 'false';
+            selectedClothes = [];
+            updateClothesDisplay();
+            document.getElementById('customerModal').classList.add('active');
+        }
+
+        // Open edit modal
+        function openEditModal(customer) {
+            document.getElementById('modalTitle').textContent = 'Edit Customer';
+            document.getElementById('isEditMode').value = 'true';
+            
+            document.getElementById('customerId').value = customer.id;
+            document.getElementById('customerId').disabled = true;
+            document.getElementById('customerName').value = customer.name || '';
+            document.getElementById('customerSize').value = customer.size;
+            document.getElementById('customerPrice').value = customer.price;
+            document.getElementById('customerPhone').value = customer.phone || '';
+            
+            selectedClothes = Array.isArray(customer.clothe) ? customer.clothe : [customer.clothe];
+            updateClothesDisplay();
+            
+            document.getElementById('customerModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('customerModal').classList.remove('active');
+            selectedClothes = [];
+        }
+
+        // Handle form submission
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            if (selectedClothes.length === 0) {
+                showMessage('Please add at least one clothing item', 'error');
+                return;
+            }
+            
+            const isEditMode = document.getElementById('isEditMode').value === 'true';
+            const customerId = document.getElementById('customerId').value;
+            
+            if (isEditMode) {
+                const updateData = {};
+                
+                const name = document.getElementById('customerName').value;
+                const size = document.getElementById('customerSize').value;
+                const price = document.getElementById('customerPrice').value;
+                const phone = document.getElementById('customerPhone').value;
+                
+                if (name) updateData.name = name;
+                if (selectedClothes.length > 0) updateData.clothe = selectedClothes;
+                if (size) updateData.size = size;
+                if (price) updateData.price = parseFloat(price);
+                if (phone) updateData.phone = parseInt(phone);
+                
+                try {
+                    const response = await fetch(`${API_URL}/edit/${customerId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(updateData)
+                    });
+
+                    if (response.ok) {
+                        showMessage('Customer updated successfully!', 'success');
+                        closeModal();
+                        loadCustomers();
+                    } else {
+                        const error = await response.json();
+                        showMessage('Error: ' + error.detail, 'error');
+                    }
+                } catch (error) {
+                    showMessage('Error updating customer: ' + error.message, 'error');
+                }
+            } else {
+                const customerData = {
+                    id: customerId,
+                    clothe: selectedClothes,
+                    size: document.getElementById('customerSize').value,
+                    price: parseFloat(document.getElementById('customerPrice').value)
+                };
+                
+                const name = document.getElementById('customerName').value;
+                const phone = document.getElementById('customerPhone').value;
+                
+                if (name) customerData.name = name;
+                if (phone) customerData.phone = parseInt(phone);
+
+                try {
+                    const response = await fetch(`${API_URL}/create`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(customerData)
+                    });
+
+                    if (response.ok) {
+                        showMessage('Customer created successfully!', 'success');
+                        closeModal();
+                        loadCustomers();
+                    } else {
+                        const error = await response.json();
+                        showMessage('Error: ' + error.detail, 'error');
+                    }
+                } catch (error) {
+                    showMessage('Error creating customer: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Delete customer
+        async function deleteCustomer(customerId) {
+            if (!confirm('Are you sure you want to delete this customer?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/delete/${customerId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showMessage('Customer deleted successfully!', 'success');
+                    loadCustomers();
+                } else {
+                    const error = await response.json();
+                    showMessage('Error: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                showMessage('Error deleting customer: ' + error.message, 'error');
+            }
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = type;
+            messageDiv.textContent = message;
+        }
+
+        // Clear message
+        function clearMessage() {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = '';
+            messageDiv.textContent = '';
+        }
+
+        // Load customers on page load
+        loadCustomers();
+
+        // ============= STOCK MANAGEMENT FUNCTIONS =============
+
+        // Load all stock
+        async function loadStock() {
+            try {
+                showMessage('Loading stock...', 'loading');
+                const response = await fetch(`${API_URL}/stock/view`);
+                const data = await response.json();
+                
+                displayStock(data);
+                clearMessage();
+            } catch (error) {
+                showMessage('Error loading stock: ' + error.message, 'error');
+            }
+        }
+
+        // Display stock entries
+        function displayStock(data) {
+            const container = document.getElementById('stockContainer');
+            
+            if (Object.keys(data).length === 0) {
+                container.innerHTML = '<div class="loading">No stock entries found. Add your first purchase!</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            
+            for (const [id, stock] of Object.entries(data)) {
+                const card = document.createElement('div');
+                card.className = 'customer-card';
+                card.innerHTML = `
+                    <div class="customer-header">
+                        <div class="customer-id">${id}</div>
+                        <div class="customer-name">${stock.item}</div>
+                    </div>
+                    <div class="customer-info">
+                        <div class="info-row">
+                            <span class="info-label">Quantity:</span>
+                            <span class="info-value">${stock.quantity} pcs</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date:</span>
+                            <span class="info-value">${stock.date || 'N/A'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Total Price:</span>
+                            <span class="price">₹${stock.price.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-warning" onclick='openEditStockModal(${JSON.stringify({id, ...stock})})'>✏️ Edit</button>
+                        <button class="btn-danger" onclick="deleteStock('${id}')">🗑️ Delete</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        // Open stock modal
+        function openStockModal() {
+            document.getElementById('stockModalTitle').textContent = 'Add Stock Purchase';
+            document.getElementById('stockForm').reset();
+            document.getElementById('isStockEditMode').value = 'false';
+            document.getElementById('stockModal').classList.add('active');
+        }
+
+        // Open edit stock modal
+        function openEditStockModal(stock) {
+            document.getElementById('stockModalTitle').textContent = 'Edit Stock';
+            document.getElementById('isStockEditMode').value = 'true';
+            
+            document.getElementById('stockId').value = stock.id;
+            document.getElementById('stockItem').value = stock.item;
+            document.getElementById('stockQuantity').value = stock.quantity;
+            document.getElementById('stockPrice').value = stock.price;
+            
+            document.getElementById('stockModal').classList.add('active');
+        }
+
+        // Close stock modal
+        function closeStockModal() {
+            document.getElementById('stockModal').classList.remove('active');
+        }
+
+        // Handle stock form submission
+        async function handleStockSubmit(event) {
+            event.preventDefault();
+            
+            const isEditMode = document.getElementById('isStockEditMode').value === 'true';
+            const stockId = document.getElementById('stockId').value;
+            
+            const stockData = {
+                item: document.getElementById('stockItem').value,
+                quantity: parseInt(document.getElementById('stockQuantity').value),
+                price: parseFloat(document.getElementById('stockPrice').value)
+            };
+            
+            try {
+                if (isEditMode) {
+                    const response = await fetch(`${API_URL}/stock/edit/${stockId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(stockData)
+                    });
+
+                    if (response.ok) {
+                        showMessage('Stock updated successfully!', 'success');
+                        closeStockModal();
+                        loadStock();
+                    } else {
+                        const error = await response.json();
+                        showMessage('Error: ' + error.detail, 'error');
+                    }
+                } else {
+                    const response = await fetch(`${API_URL}/stock/create`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(stockData)
+                    });
+
+                    if (response.ok) {
+                        showMessage('Stock entry created successfully!', 'success');
+                        closeStockModal();
+                        loadStock();
+                    } else {
+                        const error = await response.json();
+                        showMessage('Error: ' + error.detail, 'error');
+                    }
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Delete stock entry
+        async function deleteStock(stockId) {
+            if (!confirm('Are you sure you want to delete this stock entry?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/stock/delete/${stockId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showMessage('Stock entry deleted successfully!', 'success');
+                    loadStock();
+                } else {
+                    const error = await response.json();
+                    showMessage('Error: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                showMessage('Error deleting stock: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
